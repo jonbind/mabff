@@ -21,15 +21,15 @@ three steps:
 1. **Protonation assignment** (external) — assign pH-dependent protonation
    states to titratable residues, e.g. with [PDB2PQR](https://www.poissonboltzmann.org/)
    / PROPKA at the target formulation pH.
-2. **Residue renaming** (`rename_charged_species_in_pdb.py`) — convert the
+2. **Residue renaming** (`rename_protonation_states.py`) — convert the
    protonation-state residue names produced upstream to the standard names the
    coarse-graining script expects.
-3. **Coarse-graining + topology** (`mAb_prepv3.py`) — map each residue to a
+3. **Coarse-graining + topology** (`build_cg_topology.py`) — map each residue to a
    single `BB` bead at its geometric center and write a GROMACS `.itp` file
    containing atoms, charges, position restraints, backbone bonds, an elastic
    network, and backbone angles.
 
-A simple graphical front-end (`gui2.py`) wraps step 3.
+A simple graphical front-end (`gui.py`) wraps step 3.
 
 ---
 
@@ -37,9 +37,10 @@ A simple graphical front-end (`gui2.py`) wraps step 3.
 
 | File | Description |
 |------|-------------|
-| `rename_charged_species_in_pdb.py` | Renames protonation-state residues (HI+→HIP, CSS→CYS, GL0→GLH, AS0→ASH). |
-| `mAb_prepv3.py` | Core coarse-graining and GROMACS topology builder (CLI + importable module). |
-| `gui2.py` | Optional PyQt5 GUI wrapping the coarse-graining workflow. |
+| `scripts/rename_protonation_states.py` | Renames protonation-state residues (HI+→HIP, CSS→CYS, GL0→GLH, AS0→ASH). |
+| `scripts/build_cg_topology.py` | Core coarse-graining and GROMACS topology builder (CLI + importable module). |
+| `scripts/gui.py` | Optional PyQt5 GUI wrapping the coarse-graining workflow. |
+| `simulation_files/` | Example GROMACS `.mdp` run parameters, force field, and solvent files. |
 | `requirements.txt` | Python dependencies. |
 
 ---
@@ -67,7 +68,7 @@ pdb2pqr --ff=... --with-ph=5.5 input.pdb input_ph.pdb
 ### 2. Rename charged species
 
 ```bash
-python rename_charged_species_in_pdb.py input_ph.pdb input_renamed.pdb
+python scripts/rename_protonation_states.py input_ph.pdb input_renamed.pdb
 ```
 
 ### 3. Build the coarse-grained topology
@@ -75,7 +76,7 @@ python rename_charged_species_in_pdb.py input_ph.pdb input_renamed.pdb
 Command line:
 
 ```bash
-python mAb_prepv3.py input_renamed.pdb MOL output.itp
+python scripts/build_cg_topology.py input_renamed.pdb MOL output.itp
 ```
 
 This writes:
@@ -85,7 +86,7 @@ This writes:
 Or launch the GUI:
 
 ```bash
-python gui2.py
+python scripts/gui.py
 ```
 
 ---
@@ -93,7 +94,7 @@ python gui2.py
 ## Model parameters
 
 The CG model parameters are defined as named constants at the top of
-`mAb_prepv3.py` for transparency and reproducibility:
+`build_cg_topology.py` for transparency and reproducibility:
 
 | Parameter | Value | Description |
 |-----------|-------|-------------|

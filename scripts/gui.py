@@ -12,10 +12,10 @@ from PyQt5.QtCore import Qt, QObject, pyqtSignal, QThread,QSize
 from PyQt5.QtGui import QPalette, QColor
 
 # External functions (assumed to be available)
-from mAb_prepv3 import run_workflow
+from build_cg_topology import run_workflow
 
 
-class GlycoPrepWorker(QObject):
+class TopologyWorker(QObject):
     started = pyqtSignal()
     log = pyqtSignal(str)
     finished = pyqtSignal(bool, str)  # success, message
@@ -40,7 +40,7 @@ class GlycoPrepWorker(QObject):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("GlycoPrep GUI")
+        self.setWindowTitle("CG Antibody Topology Builder")
         self.setMinimumSize(700, 500)
         self._thread = None
         self._worker = None
@@ -82,7 +82,7 @@ class MainWindow(QMainWindow):
         form.addRow("ITP Output File:", itp_row)
 
         self.molecule_name_edit = QLineEdit()
-        self.molecule_name_edit.setPlaceholderText("Enter molecule name (e.g., GLYCO_01)")
+        self.molecule_name_edit.setPlaceholderText("Enter molecule name (e.g., mAb1)")
         self.molecule_name_edit.setClearButtonEnabled(True)
         form.addRow("Molecule Name:", self.molecule_name_edit)
 
@@ -258,7 +258,7 @@ class MainWindow(QMainWindow):
 
         # Create thread & worker
         self._thread = QThread()
-        self._worker = GlycoPrepWorker(input_file_name, itp_output_file_path, molecule_name)
+        self._worker = TopologyWorker(input_file_name, itp_output_file_path, molecule_name)
         self._worker.moveToThread(self._thread)
 
         # Connect signals

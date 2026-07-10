@@ -1,0 +1,35 @@
+define                  = -DPOSRES
+
+integrator              = md
+dt                      = 0.022
+nsteps                  = 30000
+comm-mode 		= Linear
+nstxout                 = 0
+nstvout                 = 0
+nstfout                 = 0
+nstlog                  = 1000
+nstenergy               = 1000
+nstxout-compressed      = 1000
+compressed-x-precision  = 1000
+compressed-x-grps       = PROTEIN NON-PROTEIN
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+pbc                     = xyz
+verlet-buffer-tolerance = 0.002
+
+coulombtype             = PME
+rcoulomb                = 1.15
+epsilon_r               = 70
+fourierspacing          = 0.4
+pme-order               = 4
+
+vdwtype                 = Cut-off
+vdw-modifier            = Potential-shift-Verlet
+rvdw                    = 1.10
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau-t                   = 1.0
+ref-t                   = 298
+gen-vel                 = yes

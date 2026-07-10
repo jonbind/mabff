@@ -17,7 +17,7 @@ High-Concentration Antibody Dynamics: Development and Validation of a
 Sequence-Specific Coarse-Grained Model".
 
 Usage (CLI):
-    python mAb_prepv3.py <input.pdb> <molecule_name> <output.itp>
+    python build_cg_topology.py <input.pdb> <molecule_name> <output.itp>
 
 Workflow:
 1) Coarse-graining:
@@ -69,7 +69,7 @@ ANGLE_FORCE = 20                  # kJ mol^-1 rad^-2
 POSRES_FORCE = 1000               # kJ mol^-1 nm^-2
 
 # Residue charge assignment. The protonation state is encoded in the residue
-# name upstream (see rename_charged_species_in_pdb.py); all other residues,
+# name upstream (see rename_protonation_states.py); all other residues,
 # including neutral protonation variants (e.g. GLH, ASH), carry zero charge.
 POSITIVE_RESIDUES = {"ARG", "LYS", "HIP", "HSP"}
 NEGATIVE_RESIDUES = {"ASP", "GLU"}
@@ -274,7 +274,7 @@ def writemolecule(
     with open(itp_output_file_path, "w") as itp:
         # Header and moleculetype
         itp.write("; itp file\n\n")
-        itp.write("; Martini 3 coarse-grained model\n")
+        itp.write("; Coarse-grained antibody model topology\n")
         itp.write("[ moleculetype ]\n")
         itp.write("; molname    nrexcl\n")
         itp.write(f"{molecule_name}  1\n\n")

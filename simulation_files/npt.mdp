@@ -1,0 +1,41 @@
+integrator              = md
+dt                      = 0.025
+nsteps                  = 100000
+comm-mode		= Linear
+nstxout                 = 0
+nstvout                 = 0
+nstfout                 = 0
+nstlog                  = 1000
+nstenergy               = 1000
+nstxout-compressed      = 1000
+compressed-x-precision  = 1000
+compressed-x-grps       = System
+
+cutoff-scheme           = Verlet
+nstlist                 = 20
+pbc                     = xyz
+verlet-buffer-tolerance = 0.002
+
+coulombtype             = PME
+rcoulomb                = 1.15
+epsilon_r               = 70
+fourierspacing          = 0.40
+pme-order               = 4
+
+vdwtype                 = Cut-off
+vdw-modifier            = Potential-shift-Verlet
+rvdw                    = 1.15
+
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau-t                   = 1.0
+ref-t                   = 298
+
+pcoupl                  = Parrinello-Rahman
+pcoupltype              = isotropic
+tau-p                   = 12.0
+compressibility         = 3e-4
+ref-p                   = 1.0
+
+gen-vel                 = no
+continuation            = yes

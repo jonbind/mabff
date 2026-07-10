@@ -1,6 +1,6 @@
 """
 Rename protonation-state residue names from a PDB2PQR/PROPKA-prepared structure
-to the standard names expected by the coarse-graining script (mAb_prepv3.py).
+to the standard names expected by the coarse-graining script (build_cg_topology.py).
 
 Mappings applied:
     HI+  -> HIP   (protonated, positively charged histidine)
@@ -12,7 +12,7 @@ Residue identity is tracked by (chain, resSeq, iCode) so that all atoms of a
 given residue are renamed consistently.
 
 Usage:
-    python rename_charged_species_in_pdb.py <input.pdb> <output.pdb>
+    python rename_protonation_states.py <input.pdb> <output.pdb>
 """
 
 import sys
@@ -67,7 +67,7 @@ def rename_pdb_residues(input_pdb_file, output_pdb_file):
 
 def main():
     if len(sys.argv) != 3:
-        print("Usage: python rename_charged_species_in_pdb.py input.pdb output.pdb")
+        print("Usage: python rename_protonation_states.py input.pdb output.pdb")
         sys.exit(1)
     input_pdb_file = sys.argv[1]
     output_pdb_file = sys.argv[2]
