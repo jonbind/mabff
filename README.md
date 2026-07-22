@@ -162,8 +162,9 @@ gmx_mpi mdrun -deffnm min1 -v -ntomp 8
 ### 4. Neutralize and add buffer/salt ions
 
 ```bash
-# neutralize the net charge Q: add NA (if Q < 0) or CL (if Q > 0), |Q| copies
-gmx_mpi insert-molecules -f min1.gro -ci NA.pdb -o neutralized.gro \
+# neutralize the net charge Q with |Q| counter-ions: add CL if Q > 0, NA if Q < 0.
+# At pH 5.5 a mAb is typically net positive (Q > 0), so CL is used here.
+gmx_mpi insert-molecules -f min1.gro -ci CL.pdb -o neutralized.gro \
         -nmol <|Q|> -try 5000 -selrpos atom
 
 # add buffer ions, n_buf of each (e.g. histidine buffer: HST+ / CL-)
@@ -174,7 +175,7 @@ gmx_mpi insert-molecules -f buf1.gro -ci CL.pdb -o buf2.gro \
 ```
 
 Append the added ions to the `[ molecules ]` section of `top.top`, e.g.
-`NA <|Q|>`, `HST <n_buf>`, `CL <n_buf>`. The ion count for a target
+`CL <|Q|>` (neutralization), `HST <n_buf>`, `CL <n_buf>` (buffer). The ion count for a target
 concentration `C` (mol/L) is `n = C · V · N_A`, with box volume `V = L³ · 1e-24` L.
 
 ### 5. Second minimization and solvation
