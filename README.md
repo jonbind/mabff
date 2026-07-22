@@ -235,6 +235,4 @@ protonation state encoded upstream (step 2):
 
 ---
 
-## License
 
-[Add your license here, e.g. MIT.]
