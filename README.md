@@ -120,7 +120,7 @@ The ready-to-use NISTmAb example in [`mAb_files/`](mAb_files/) (`NISTmAb_cg.pdb`
 and `NISTmAb.itp`) can be dropped straight into this workflow to start a
 simulation without running the coarse-graining steps first.
 
-The required inputs from this repository are `mabff213.itp` (force field),
+The required inputs from this repository are `mabff_v1.0.itp` (force field),
 `water.itp` / `water.gro` (solvent), and the `.mdp` run parameters in
 [`simulation_files/`](simulation_files/). You additionally need `minimization.mdp`,
 an ions topology (`ions.itp`), and single-bead structures for the counter-ions
