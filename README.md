@@ -18,9 +18,10 @@ If you use this code, please cite the paper above.
 The pipeline turns an all-atom PDB structure into a CG GROMACS topology in
 three steps:
 
-1. **Protonation assignment** (external) — assign pH-dependent protonation
-   states to titratable residues, e.g. with [PDB2PQR](https://www.poissonboltzmann.org/)
-   / PROPKA at the target formulation pH.
+1. **Protonation assignment** (required) — assign pH-dependent protonation
+   states to titratable residues with [PDB2PQR](https://www.poissonboltzmann.org/)
+   / PROPKA at the target formulation pH. This step is mandatory; PDB2PQR (with
+   PROPKA) is installed via the [Installation](#installation) step below.
 2. **Residue renaming** (`rename_protonation_states.py`) — convert the
    protonation-state residue names produced upstream to the standard names the
    coarse-graining script expects.
@@ -52,6 +53,9 @@ Requires Python 3.8+.
 ```bash
 pip install -r requirements.txt
 ```
+
+This includes **PDB2PQR** (which bundles PROPKA), required for the mandatory
+protonation-assignment step.
 
 ---
 
