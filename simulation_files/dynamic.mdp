@@ -1,86 +1,43 @@
-; Production MD input options for the coarse-grained antibody model
-; For use with GROMACS.
 
-; TIMESTEP
-; A 20-30 fs timestep gives good energy conservation for this model.
 
-integrator               = md
-dt                       = 0.02
-nsteps                   = 150000000  ; 1 us
+integrator               = md    
+dt                       = 0.027
+nsteps                   = 100000000
+comm-mode                = linear
 
 nstxout                  = 0
 nstvout                  = 0
 nstfout                  = 0
-nstlog                   = 25000 ; 0.5 ns
-nstenergy                = 50000 ; 0.5 ns
-nstxout-compressed       = 100000 ; 1 ns
-compressed-x-precision   = 100
-compressed-x-grps        =
-energygrps               = System
+nstlog                   = 100000
+nstenergy                = 1000000
+nstxout-compressed       = 100000
+compressed-x-precision   = 1000
+compressed-x-grps        = PROTEIN 
+energygrps               = 
 
-; NEIGHBOUR LIST
-; A straight cutoff at 1.1 nm is used with the Verlet scheme.
-; The neighbour list update frequency (nstlist) can be tuned to the hardware;
-; 20 steps is a reasonable default, 30-40 may be better on GPUs.
-; The verlet-buffer-tolerance is disabled so that rlist is set explicitly;
-; rlist should be at least 1.35 nm with nstlist = 20 and rcoulomb/rvdw = 1.1.
-; Coulomb interactions are treated with a reaction field.
+
 
 cutoff-scheme            = Verlet
 nstlist                  = 20
-nsttcouple               = 20
-nstpcouple               = 20
-rlist                    = 1.35
-verlet-buffer-tolerance  = -1
 ns_type                  = grid
 pbc                      = xyz
+verlet-buffer-tolerance  = 0.002
 
-coulombtype              = reaction-field
-rcoulomb                 = 1.1
-epsilon_r                = 15
-epsilon_rf               = 0
-vdw_type                 = cutoff
+coulombtype              = PME
+rcoulomb                 = 1.15
+epsilon_r                = 65	
+fourierspacing		     = 0.40
+pme-order                = 4
+vdw_type                 = cutoff  
 vdw-modifier             = Potential-shift-verlet
-rvdw                     = 1.1
+rvdw                     = 1.15 
 
-; TEMPERATURE / PRESSURE COUPLING
-; Temperature is controlled with the velocity-rescale (V-rescale) thermostat
-; using a coupling constant of ~1 ps, coupling protein and non-protein groups
-; separately. Pressure is controlled with the stochastic cell-rescale
-; (c-rescale) barostat.
 
-tcoupl                   = v-rescale
-tc-grps                  = Protein Non-Protein
-tau_t                    = 1.0 1.0
-ref_t                    = 298 298
 
-gen_vel                  = no
-gen_temp                 = 298
-gen_seed                 = -1
+tcoupl                   = v-rescale 
+tc-grps                  = System
+tau_t                    = 2.0 
+ref_t                    = 298 
 
-; The c-rescale barostat is used with a coupling constant of 4 ps and
-; compressibility 3e-4, and is suitable for both equilibration and production
-; (https://doi.org/10.1063/5.0020514).
-
-; Pressure coupling
-Pcoupl                   = c-rescale
-Pcoupltype               = semiisotropic
-tau_p                    = 4.0 
-ref_p                    = 1.0 1.0
-compressibility          = 3e-4 3e-4 
-
-refcoord_scaling         = all
-
-; Center of mass removal
-comm-mode                = Linear
-nstcomm                  = 100
-comm-grps                = Protein Non-Protein
-
-; CONSTRAINTS
-; Stiff bonds, where defined, are handled with LINCS.
-
-constraints              = none
-constraint_algorithm     = Lincs
-lincs_order              = 8
-lincs_warnangle          = 90
-lincs_iter               = 2
+pcoupl                   = no
+continuation             = yes

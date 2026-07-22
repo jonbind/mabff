@@ -91,6 +91,122 @@ python scripts/gui.py
 
 ---
 
+## Building a simulation system
+
+Once you have a coarse-grained antibody topology (`mAb.itp`) and structure
+(`mAb_cg.pdb`), the following [GROMACS](https://www.gromacs.org/) workflow builds
+a solvated, buffered box at a target antibody concentration and runs
+equilibration and production. The commands below use `gmx_mpi`; replace with
+`gmx` for a serial build. The GPU flags shown in the run steps are optional.
+
+The required inputs from this repository are `mabff213.itp` (force field),
+`water.itp` / `water.gro` (solvent), and the `.mdp` run parameters in
+[`simulation_files/`](simulation_files/). You additionally need `minimization.mdp`,
+an ions topology (`ions.itp`), and single-bead structures for the counter-ions
+and buffer species (e.g. `NA.pdb`, `CL.pdb`, `HST.pdb`).
+
+### 1. Set up the box and add antibody copies
+
+```bash
+# center the CG antibody in a cubic box of edge L (nm)
+gmx_mpi editconf -f mAb_cg.pdb -d 1.0 -o mAb.gro
+gmx_mpi editconf -f mAb.gro -c -bt triclinic -box L L L -o mAb.gro
+
+# position restraints for the antibody (used under -DPOSRES)
+echo 1 | gmx_mpi genrestr -f mAb.gro -o posre.itp
+
+# replicate to N copies to reach the target concentration
+gmx_mpi insert-molecules -f mAb.gro -ci mAb.gro -o system.gro \
+        -nmol <N-1> -try 5000 -selrpos atom
+```
+
+The number of antibody molecules `N` for a target concentration `c` (mg/mL) in a
+cubic box of edge `L` (nm) is `N = c · L³ · 1e-21 / (MW · 1.6605e-18)`, with a
+molecular weight `MW ≈ 148` kDa.
+
+### 2. Write the topology
+
+Create `top.top`:
+
+```
+#include "mabff213.itp"
+#include "ions.itp"
+#include "mAb.itp"
+#ifdef POSRES
+#include "posre.itp"
+#endif
+#include "water.itp"
+
+[ system ]
+antibody system
+
+[ molecules ]
+MOL   <N>
+```
+
+### 3. Vacuum minimization and net-charge check
+
+```bash
+gmx_mpi grompp -p top.top -f minimization.mdp -c system.gro \
+        -o min1.tpr -maxwarn 2 2> charge.log
+gmx_mpi mdrun -deffnm min1 -v -ntomp 8
+```
+
+`grompp` reports the system's net charge in `charge.log`
+(`System has non-zero total charge: ...`).
+
+### 4. Neutralize and add buffer/salt ions
+
+```bash
+# neutralize the net charge Q: add NA (if Q < 0) or CL (if Q > 0), |Q| copies
+gmx_mpi insert-molecules -f min1.gro -ci NA.pdb -o neutralized.gro \
+        -nmol <|Q|> -try 5000 -selrpos atom
+
+# add buffer ions, n_buf of each (e.g. histidine buffer: HST+ / CL-)
+gmx_mpi insert-molecules -f neutralized.gro -ci HST.pdb -o buf1.gro \
+        -nmol <n_buf> -try 5000 -selrpos atom
+gmx_mpi insert-molecules -f buf1.gro -ci CL.pdb -o buf2.gro \
+        -nmol <n_buf> -try 5000 -selrpos atom
+```
+
+Append the added ions to the `[ molecules ]` section of `top.top`, e.g.
+`NA <|Q|>`, `HST <n_buf>`, `CL <n_buf>`. The ion count for a target
+concentration `C` (mol/L) is `n = C · V · N_A`, with box volume `V = L³ · 1e-24` L.
+
+### 5. Second minimization and solvation
+
+```bash
+gmx_mpi grompp -p top.top -f minimization.mdp -c buf2.gro -o min2.tpr
+gmx_mpi mdrun -deffnm min2 -v -ntomp 8
+
+gmx_mpi solvate -cp min2.gro -cs water.gro -radius 0.44 -o solvated.gro -p top.top
+```
+
+### 6. Equilibration and production
+
+```bash
+# energy minimization
+gmx_mpi grompp -p top.top -c solvated.gro -f minimization.mdp -r solvated.gro -o em.tpr
+gmx_mpi mdrun -deffnm em -v
+
+# NVT equilibration
+gmx_mpi grompp -p top.top -c em.gro -f nvt.mdp -r em.gro -o nvt.tpr -maxwarn 3
+gmx_mpi mdrun -deffnm nvt -v -nb gpu -bonded gpu -update gpu -pme gpu -pin on
+
+# NPT equilibration
+gmx_mpi grompp -p top.top -c nvt.gro -f npt.mdp -r nvt.gro -t nvt.cpt -o npt.tpr -maxwarn 3
+gmx_mpi mdrun -deffnm npt -v -nb gpu -bonded gpu -update gpu -pme gpu -pin on
+
+# production
+gmx_mpi grompp -p top.top -c npt.gro -f dynamic.mdp -r npt.gro -t npt.cpt -o dynamic.tpr -maxwarn 3
+gmx_mpi mdrun -deffnm dynamic -v -nb gpu -bonded gpu -update gpu -pme gpu -pin on
+```
+
+The production trajectory (`dynamic.xtc`) is the input for downstream dynamics
+and viscosity analysis.
+
+---
+
 ## Model parameters
 
 The CG model parameters are defined as named constants at the top of

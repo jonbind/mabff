@@ -1,0 +1,29 @@
+integrator              = steep
+emtol                   = 10.0
+emstep                  = 0.01
+nsteps                  = 50000
+
+cutoff-scheme           = Verlet
+nstlist                 = 25
+pbc                     = xyz
+verlet-buffer-tolerance = 0.005
+
+coulombtype             = PME
+rcoulomb                = 1.15
+epsilon_r               = 65
+fourierspacing          = 0.40
+pme-order               = 4
+
+vdwtype                 = Cut-off
+vdw-modifier            = Potential-shift-Verlet
+rvdw                    = 1.15
+
+tcoupl                  = no
+pcoupl                  = no
+
+nstxout                 = 0
+nstvout                 = 0
+nstfout                 = 0
+nstlog                  = 100
+nstenergy               = 100
+nstxout-compressed      = 0
