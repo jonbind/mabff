@@ -129,7 +129,7 @@ molecular weight `MW ≈ 148` kDa.
 Create `top.top`:
 
 ```
-#include "mabff213.itp"
+#include "mabff_v1.0.itp"
 #include "ions.itp"
 #include "mAb.itp"
 #ifdef POSRES
@@ -207,32 +207,12 @@ and viscosity analysis.
 
 ---
 
-## Model parameters
 
-The CG model parameters are defined as named constants at the top of
-`build_cg_topology.py` for transparency and reproducibility:
+## Questions
 
-| Parameter | Value | Description |
-|-----------|-------|-------------|
-| Backbone bond length | 0.4 nm | Equilibrium bond between consecutive residues |
-| Backbone bond force constant | 6000 kJ·mol⁻¹·nm⁻² | |
-| Elastic network cutoffs | 0.4–0.6 nm | Residue pairs restrained if their initial separation falls in this range |
-| Elastic network force constant | 600 kJ·mol⁻¹·nm⁻² | Harmonic "rubber band" restraints |
-| Backbone angle | 127° | Equilibrium angle for residue triplets |
-| Backbone angle force constant | 20 kJ·mol⁻¹·rad⁻² | |
-| Position restraint force | 1000 kJ·mol⁻¹·nm⁻² | Applied under `-DPOSRES` |
+For questions, please contact:
 
-**Charge assignment.** Charges are assigned by residue name, with the
-protonation state encoded upstream (step 2):
-
-- +1: ARG, LYS, HIP/HSP
-- −1: ASP, GLU
-- 0: all other residues, including neutral protonation variants (GLH, ASH)
-
-> **Note:** Glycans are not included in the current model. Bead names starting
-> with `G` are reserved for future glycan support and are skipped when building
-> bonds and angles.
-
----
+- **Jonas Binder** — [jonas.binder@cup.uni-muenchen.de](mailto:jonas.binder@cup.uni-muenchen.de)
+- **Carolin Thilmann** — [carolin.thilmann@cup.uni-muenchen.de](mailto:carolin.thilmann@cup.uni-muenchen.de)
 
 
